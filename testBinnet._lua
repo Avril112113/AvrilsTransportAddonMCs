@@ -1,0 +1,83 @@
+require "helpers"
+require "shared.binnet"
+
+function debug.log(...)
+	print(...)
+end
+
+
+local A = Binnet:new()
+local B = Binnet:new()
+
+
+PACKET_BYTES = A:registerPacketWriter(function(binnet, writer, ...)
+	for i, v in ipairs({...}) do
+		writer:writeUByte(v)
+	end
+end)
+PACKET_CUSTOM = A:registerPacketWriter(function(binnet, writer, n)
+	writer:writeCustom(n, -(2^24), 2^24, 0.01)
+end)
+PACKET_STRING = A:registerPacketWriter(function(binnet, writer, s)
+	writer:writeString(s)
+end)
+PACKET_PRESET = A:registerPacketWriter(function(binnet, writer)
+	writer:writeString("test")
+	writer:writeCustom(20000, -(2^24), 2^24, 0.01)
+end)
+
+A:send(PACKET_BYTES, 1, 2)
+A:send(PACKET_BYTES, 3, 4)
+A:send(PACKET_CUSTOM, 0)
+A:send(PACKET_CUSTOM, -123)
+A:send(PACKET_CUSTOM, 123)
+A:send(PACKET_CUSTOM, 1.2345)
+A:send(PACKET_STRING, "A long string to test with.")
+A:send(PACKET_PRESET)
+
+
+print("~~ A Packets")
+for i, v in ipairs(A.outPackets) do
+	print(#v, table.concat(v, " "))
+end
+
+local outputs = {}
+while #A.outStream > 0 or #A.outPackets > 0 do
+	table.insert(outputs, A:write(3))
+end
+
+
+print()
+
+
+---@param reader IOStream
+local function checkReader(reader)
+	if #reader ~= 0 then
+		print(debug.traceback("WARNING: There are bytes remaining in the reader: " .. table.concat(reader, " ")))
+	end
+end
+
+
+B:registerPacketReader(function(binnet, reader)
+	print("Bytes", table.unpack(reader:readUBytes(#reader)))
+	checkReader(reader)
+end)
+B:registerPacketReader(function(binnet, reader)
+	print("Custom", reader:readCustom(-(2^24), 2^24, 0.01))
+	checkReader(reader)
+end)
+B:registerPacketReader(function(binnet, reader)
+	print("String", reader:readString())
+	checkReader(reader)
+end)
+B:registerPacketReader(function(binnet, reader)
+	print("Preset", reader:readString(), reader:readCustom(-(2^24), 2^24, 0.01))
+	checkReader(reader)
+end)
+
+for i, output in ipairs(outputs) do
+	print("~~ B Output #" .. i)
+	local byteCount, packetCount = B:process(output)
+	print(("~ Processed %.0f bytes and %.0f packets."):format(byteCount, packetCount))
+	print()
+end
