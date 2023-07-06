@@ -13,7 +13,7 @@
 ---@param params MinimizerParams    params that the build process usees to control minification settings
 ---@param workspaceRoot Filepath    filepath to the root folder of the project
 function onLBBuildStarted(builder, params, workspaceRoot)
-    print("Build started - see the build actions in _build/_buildactions.lua")
+    builder.filter = "Interface Controller%.lua"
 end
 
 --- Runs just before each file is built
@@ -50,10 +50,7 @@ end
 ---@param params MinimizerParams    params that the build process usees to control minification settings
 ---@param workspaceRoot Filepath    filepath to the root folder of the project
 function onLBBuildComplete(builder, params, workspaceRoot)
-    print("Build Success")
-    print("See the /out/release/ folder for your minimized code")
-
-    package.path = package.path .. ";../.tools/AutoVehicleUpdater/?.lua;"
+    package.path = package.path .. ";../AvrilsSWTools/AutoVehicleUpdater/?.lua;"
     require("update_vehicle")(builder, params, workspaceRoot)
 end
 
