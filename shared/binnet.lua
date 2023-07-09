@@ -126,7 +126,7 @@ function IOStream.writeString(self, s)
 	end
 end
 
----@alias PacketReadHandlerFunc fun(binnet:Binnet, reader:IOStream): ...
+---@alias PacketReadHandlerFunc fun(binnet:Binnet, reader:IOStream, packetId:integer)
 ---@alias PacketWriteHandlerFunc fun(binnet:Binnet, writer:IOStream, ...)
 
 
@@ -152,15 +152,17 @@ function Binnet.new(self)
 end
 
 ---@param handler PacketReadHandlerFunc
-function Binnet.registerPacketReader(self, handler)
-	table.insert(self.packetReaders, handler)
+---@param packetId integer # Range: 0-255
+function Binnet.registerPacketReader(self, packetId, handler)
+	self.packetReaders[packetId] = handler
 end
 
 ---@param handler PacketWriteHandlerFunc
+---@param packetId integer # Range: 0-255
 ---@return integer packetWriterId
-function Binnet.registerPacketWriter(self, handler)
-	table.insert(self.packetWriters, handler)
-	return #self.packetWriters
+function Binnet.registerPacketWriter(self, packetId, handler)
+	self.packetWriters[packetId] = handler
+	return packetId
 end
 
 ---@param packetWriterId integer
@@ -201,10 +203,8 @@ function Binnet.process(self, values)
 			reader:readUByte()  -- We already peeked the byte count.
 			local packetId = reader:readUByte()
 			local packetHandler = self.packetReaders[packetId]
-			if packetHandler == nil then
-				log_error("No packet handler with id " .. tostring(packetId))
-			else
-				packetHandler(self, reader)
+			if packetHandler then
+				packetHandler(self, reader, packetId)
 			end
 			totalByteCount = totalByteCount + byteCount
 			packetCount = packetCount + 1

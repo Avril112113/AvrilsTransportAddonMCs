@@ -13,7 +13,7 @@
 ---@param params MinimizerParams    params that the build process usees to control minification settings
 ---@param workspaceRoot Filepath    filepath to the root folder of the project
 function onLBBuildStarted(builder, params, workspaceRoot)
-    builder.filter = "Interface Controller%.lua"
+    builder.filter = "IC_.*%.lua"
 end
 
 --- Runs just before each file is built
