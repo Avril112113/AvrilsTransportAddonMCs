@@ -95,7 +95,7 @@ function onDraw()
 		screen.drawRect(53, 0 - INTERFACE.scroll, 0, 8)
 		screen.setColor(180, 180, 180)
 		screen.drawText(2, 2 - INTERFACE.scroll, INTERFACE.location:gsub("_", " "):sub(1, 10))
-		screen.drawText(55, 2, INTERFACE.viewName)
+		screen.drawText(55, 2 - INTERFACE.scroll, INTERFACE.viewName)
 
 		viewDraw()
 	end
