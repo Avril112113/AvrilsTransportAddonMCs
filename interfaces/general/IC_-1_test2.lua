@@ -1,4 +1,4 @@
-require("interface_controller.base")
+require("interfaces.base")
 
 INTERFACE.viewIndex = -1
 INTERFACE.viewName = "Test 2"
