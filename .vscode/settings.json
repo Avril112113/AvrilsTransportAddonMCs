@@ -5,7 +5,8 @@
         "lowercase-global",
         "undefined-doc-name",
         "duplicate-set-field",
-        "duplicate-doc-alias"
+        "duplicate-doc-alias",
+        "duplicate-doc-field"
     ],
     "Lua.diagnostics.globals": [
         "__simulator",

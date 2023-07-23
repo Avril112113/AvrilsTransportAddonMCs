@@ -4,6 +4,7 @@
 -- require("Debug")
 
 require("helpers")
+require("shared.iostream")
 require("shared.binnet")
 
 
@@ -12,6 +13,7 @@ VIEW_MAX = property.getNumber("View Max")
 VIEW_COUNT = VIEW_MAX - VIEW_MIN + 1
 
 
+Binnet = Binnet:new()
 -- UPDATE_INTERFACE
 Binnet:registerPacketReader(0, function(binnet, reader)
 	INTERFACE.location = reader:readString()
