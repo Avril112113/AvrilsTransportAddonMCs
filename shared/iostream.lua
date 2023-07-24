@@ -56,17 +56,17 @@ end
 
 ---@param min number
 ---@param max number
----@param decimals number  # Represented as `0.01`
-function IOStream.readCustom(self, min, max, decimals)
+---@param precision number  # Represented as `0.01`
+function IOStream.readCustom(self, min, max, precision)
 	-- https://github.com/martindevans/StormPack/blob/master/Stormpack/PackSpec.cs#L53
 	local range = max-min
-	local bitCount = math.ceil(math.log(range/decimals, 2))
-	local precision = (2 ^ -bitCount) * range
+	local bitCount = math.ceil(math.log(range/precision, 2))
+	-- local _precision = (2 ^ -bitCount) * range
 	local byteCount = math.ceil(bitCount/8)
-	local valueDecoded = iostream_packunpack(string.rep("B", byteCount) .. string.rep("x", 8-byteCount), "J", table.unpack(self:readUBytes(byteCount)))
-	-- return iostream_ceil(valueDecoded*precision + min, decimals)
-    local quant, frac = math.modf((valueDecoded*precision + min)/decimals)
-    return decimals * (quant + (frac > 0 and 1 or 0))
+	-- local valueDecoded = iostream_packunpack(string.rep("B", byteCount) .. string.rep("x", 8-byteCount), "J", table.unpack(self:readUBytes(byteCount)))
+	-- return iostream_ceil(valueDecoded*_precision + min, decimals)
+    local quant, frac = math.modf((iostream_packunpack(string.rep("B", byteCount) .. string.rep("x", 8-byteCount), "J", table.unpack(self:readUBytes(byteCount)))*((2 ^ -bitCount) * range) + min)/precision)
+    return precision * (quant + (frac > 0 and 1 or 0))
 end
 ---@param min number
 ---@param max number
