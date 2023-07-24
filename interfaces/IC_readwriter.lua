@@ -1,4 +1,5 @@
 require("helpers")
+require("shared.iostream")
 require("shared.binnet")
 
 
