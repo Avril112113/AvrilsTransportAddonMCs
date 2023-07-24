@@ -72,11 +72,10 @@ end
 ---@param packetWriterId integer
 ---@param ... any
 function Binnet.send(self, packetWriterId, ...)
-	local packetHandler = self.packetWriters[packetWriterId]
 	local writer = IOStream.new()
 	writer:writeUByte(0)
 	writer:writeUByte(packetWriterId)
-	packetHandler(self, writer, ...)
+	_ = self.packetWriters[packetWriterId] and self.packetWriters[packetWriterId](self, writer, ...)
 	writer[1] = #writer  -- Hacky way around writers only being append only. Not fixing due to char count.
 	table.insert(self.outPackets, writer)
 end
