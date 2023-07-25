@@ -6,7 +6,8 @@
         "undefined-doc-name",
         "duplicate-set-field",
         "duplicate-doc-alias",
-        "duplicate-doc-field"
+        "duplicate-doc-field",
+        "different-requires"
     ],
     "Lua.diagnostics.globals": [
         "__simulator",

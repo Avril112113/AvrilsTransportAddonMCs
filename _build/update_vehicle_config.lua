@@ -11,4 +11,13 @@ return
 			},
 		}
 	},
+	{
+		vehicle="ATAddon Interface Pump",
+		microcontrollers = {
+			["Interface Controller"] = {
+				[8] = "interfaces/pump/IC_0_pump",
+				[86] = "interfaces/IC_readwriter",
+			},
+		}
+	},
 }

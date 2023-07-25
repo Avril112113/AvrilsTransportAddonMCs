@@ -5,7 +5,7 @@
 
 require("helpers")
 require("shared.iostream")
-require("shared.binnet")
+require("shared.binnet_short")
 
 
 VIEW_MIN = property.getNumber("View Min")
@@ -29,6 +29,14 @@ INTERFACE = {
 __loaded = false
 __enabled = false
 function onTick()
+	touchData = {
+		size = {x=input.getNumber(1), y=input.getNumber(2)},
+		pressed = input.getBool(1),
+		-- bPressed = input.getBool(2),
+		pos = {x=input.getNumber(3), y=input.getNumber(4)},
+		-- bPos = {x=input.getNumber(5), y=input.getNumber(6)},
+	}
+
 	__newEnabled = input.getNumber(10) ~= 0
 	if not __newEnabled and __enabled or not __loaded then
 		output.setNumber(1, 0)
@@ -40,7 +48,7 @@ function onTick()
 		prevConfirmBtn = false
 		tick = 0
 
-		touchData = {}
+		prevTouchData = touchData
 
 		viewReset()
 	end
@@ -48,14 +56,6 @@ function onTick()
 	if not __enabled then
 		return
 	end
-
-	touchData = {
-		size = {x=input.getNumber(1), y=input.getNumber(2)},
-		aPressed = input.getBool(1),
-		bPressed = input.getBool(2),
-		aPos = {x=input.getNumber(3), y=input.getNumber(4)},
-		bPos = {x=input.getNumber(5), y=input.getNumber(6)},
-	}
 
 	viewIndex = input.getNumber(32)
 	if INTERFACE.viewIndex == 0 then
@@ -74,8 +74,8 @@ function onTick()
 		viewTick()
 	end
 
-	---@diagnostic disable-next-line: undefined-global
-	output.setBool(1, ticketBlink and (tick % 60 > 30))
+	-- ---@diagnostic disable-next-line: undefined-global
+	-- output.setBool(1, ticketBlink and (tick % 60 > 30))
 
 	__binnetOutput = Binnet:write(3)
 	output.setNumber(1, __binnetOutput[1] or 0)

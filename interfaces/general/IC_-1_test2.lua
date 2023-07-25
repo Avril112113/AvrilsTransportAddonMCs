@@ -21,7 +21,7 @@ function viewReset()
 end
 
 function viewTick()
-	if touchData.aPressed and not prevTouchData.aPressed then
+	if touchData.pressed and not prevTouchData.pressed then
 		Binnet:send(3)
 	end
 	if tick % 30 == 0 then
