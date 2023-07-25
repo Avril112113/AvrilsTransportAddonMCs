@@ -1,10 +1,8 @@
 --[[
 	Version: 0.1
-	Limit of 256 read packet handlers.
-	Limit of 256 write packet handlers.
-	Packets can't span across multiple ticks, yet.
-	There is a huge lack of error checking, invalid packet ids will cause issues.
-	MAKE SURE that the readers from here match up to the writers, in order, from the other.
+	Limited range of 0-255 for packet ids.
+	Packets don't require a writer to be sent, it'll just be an empty packet.
+	If a packet is missing a reader, it is silently ignored.
 ]]
 
 
@@ -15,14 +13,12 @@
 function binnet_encode(a, b, c)
 	---@diagnostic disable-next-line: return-type-mismatch
 	return (iostream_packunpack("BBBB", "<f", a, b, c, 1))
-	-- return (string.unpack("<f", string.pack("BBBB", a, b, c, 1)))
 end
 
 ---@param f number
 ---@return byte, byte, byte
 function binnet_decode(f)
 	local a, b, c = iostream_packunpack("<f", "BBBB", f)
-	-- local a, b, c = string.unpack("BBBB", string.pack("<f", f))
 	---@diagnostic disable-next-line: return-type-mismatch, missing-return-value
 	return a or 0, b or 0, c or 0
 end
@@ -73,10 +69,9 @@ end
 ---@param ... any
 function Binnet.send(self, packetWriterId, ...)
 	local writer = IOStream.new()
-	writer:writeUByte(0)
 	writer:writeUByte(packetWriterId)
 	_ = self.packetWriters[packetWriterId] and self.packetWriters[packetWriterId](self, writer, ...)
-	writer[1] = #writer  -- Hacky way around writers only being append only. Not fixing due to char count.
+	table.insert(writer, 1, #writer+1)  -- `writer:writeUByte` only appends, not prepend.
 	table.insert(self.outPackets, writer)
 end
 
@@ -95,20 +90,15 @@ function Binnet.process(self, values)
 	end
 
 	local totalByteCount, packetCount = 0, 0
-	while true do
+	while self.inStream[1] ~= nil do
 		local byteCount = self.inStream[1]
 		if byteCount == 0 then
 			self.inStream:readUByte()
-		elseif byteCount == nil then
-			break
 		elseif #self.inStream >= byteCount then
 			local reader = IOStream.new(self.inStream:readUBytes(byteCount))
 			reader:readUByte()  -- We already peeked the byte count.
 			local packetId = reader:readUByte()
-			local packetHandler = self.packetReaders[packetId]
-			if packetHandler then
-				packetHandler(self, reader, packetId)
-			end
+			_ = self.packetReaders[packetId] and self.packetReaders[packetId](self, reader, packetId)
 			totalByteCount = totalByteCount + byteCount
 			packetCount = packetCount + 1
 		else
