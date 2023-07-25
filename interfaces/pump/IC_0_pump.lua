@@ -15,6 +15,7 @@ end)
 -- UPDATE_LOCATION_STORAGE
 Binnet:registerPacketWriter(2, function (binnet, writer)
 	writer:writeUByte(1)  -- Filter fluids only
+	writer:writeUByte(0)  -- Only show fluids we have any of
 end)
 Binnet:registerPacketReader(2, function(binnet, reader)
 	while #reader > 0 do
@@ -60,7 +61,7 @@ function viewReset()
 end
 
 function viewTick()
-	if selectedProducible == nil and tick % 120 == 0 and pendingStoragePacket == false and INTERFACE.location ~= "LOADING" then
+	if selectedProducible == nil and tick % 60 == 0 and pendingStoragePacket == false and INTERFACE.location ~= "LOADING" then
 		pendingStoragePacket = true
 		Binnet:send(2)
 	end
