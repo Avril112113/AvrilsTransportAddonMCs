@@ -49,8 +49,8 @@ Binnet = {
 ---@return Binnet
 function Binnet.new(self)
 	self = shallowCopy(self, {})
-	self.packetReaders = shallowCopy(self.packetReaders, {})
-	self.packetWriters = shallowCopy(self.packetWriters, {})
+	-- self.packetReaders = shallowCopy(self.packetReaders, {})
+	-- self.packetWriters = shallowCopy(self.packetWriters, {})
 	self.inStream = IOStream.new()
 	self.outStream = IOStream.new()
 	return self

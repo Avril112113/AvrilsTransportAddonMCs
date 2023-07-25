@@ -43,6 +43,7 @@ end)
 
 function viewReset()
 	INTERFACE.scroll = 10  -- 1 pixel below the orange line.
+	page = 0
 
 	companyName = nil
 	---@type table<string,number>
@@ -72,7 +73,7 @@ function viewTick()
 				pumpingState = touchData.pos.x // (touchData.size.x/3) - 1
 			end
 		else
-			selectedProducible = storageOrder[touchData.pos.y // 8]
+			selectedProducible = storageOrder[(touchData.pos.y + page*32) // 8]
 			pumpingState = selectedProducible ~= nil and 0 or 1
 			Binnet:send(20)
 		end
@@ -83,6 +84,10 @@ function viewTick()
 		Binnet:send(20)
 	end
 
+	if tick % 180 == 0 then
+		page = math.floor((page+1) % ((#storageOrder+1)/4))
+	end
+
 	output.setBool(1, pumpingState < 0)  -- Into location storage
 	output.setBool(2, pumpingState > 0)  -- Out of location storage
 end
@@ -90,8 +95,7 @@ end
 function viewDraw()
 	screen.setColor(255, 255, 255, 255)
 	if selectedProducible == nil then
-		-- TODO: Scrolling
-		y = 10 - INTERFACE.scroll
+		y = 10 - INTERFACE.scroll - page*32
 		screen.drawText(1, y, ("~ %s"):format(INTERFACE.location))
 		y = y + 8
 		for _, producibleName in ipairs(storageOrder) do
