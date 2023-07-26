@@ -3,6 +3,12 @@ require("interfaces.base")
 INTERFACE.viewIndex = 0
 INTERFACE.viewName = "Pump"
 
+---@type table<string,number>
+produciblePrices = {}
+---@type table<string,number>
+locationStorage = {}
+---@type string[]
+storageOrder = {}
 
 -- UPDATE_COMPANY
 Binnet:registerPacketReader(1, function(binnet, reader)
@@ -18,6 +24,8 @@ Binnet:registerPacketWriter(2, function (binnet, writer)
 	writer:writeUByte(0)  -- Only show fluids we have any of
 end)
 Binnet:registerPacketReader(2, function(binnet, reader)
+	locationStorage = {}
+	storageOrder = {}
 	while #reader > 0 do
 		producibleName = reader:readString()
 		if locationStorage[producibleName] == nil then
@@ -47,12 +55,6 @@ function viewReset()
 	page = 0
 
 	companyName = nil
-	---@type table<string,number>
-	produciblePrices = {}
-	---@type table<string,number>
-	locationStorage = {}
-	---@type string[]
-	storageOrder = {}
 	selectedProducible = nil
 	pendingStoragePacket = false
 	pumpingState = -1  -- Default pump into location, so we can detect what fluid the player is pumping.
@@ -79,8 +81,7 @@ function viewTick()
 			Binnet:send(20)
 		end
 	end
-	-- TODO: if the company name changes, reset.
-	if companyName == nil then
+	if companyName ~= prevComanyName then
 		selectedProducible = nil
 		Binnet:send(20)
 	end
@@ -89,8 +90,15 @@ function viewTick()
 		page = math.floor((page+1) % ((#storageOrder+1)/4))
 	end
 
+	if selectedProducible == nil then
+		pumpingState = -1
+	end
+
 	output.setBool(1, pumpingState < 0)  -- Into location storage
 	output.setBool(2, pumpingState > 0)  -- Out of location storage
+	output.setBool(3, selectedProducible == nil)
+
+	prevComanyName = companyName
 end
 
 function viewDraw()
