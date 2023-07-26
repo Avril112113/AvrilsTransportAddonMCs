@@ -84,6 +84,8 @@ function viewTick()
 	if companyName ~= prevComanyName then
 		selectedProducible = nil
 		Binnet:send(20)
+	elseif companyName == nil then
+		selectedProducible = nil
 	end
 
 	if tick % 180 == 0 then
