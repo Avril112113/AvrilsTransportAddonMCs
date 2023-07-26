@@ -6,7 +6,7 @@ return
 			["Interface Controller"] = {
 				[8] = "interfaces/general/IC_0_company",
 				[65] = "interfaces/general/IC_1_test1",
-				[66] = "interfaces/general/IC_-1_test2",
+				[66] = "interfaces/general/IC_-1_storage",
 				[86] = "interfaces/IC_readwriter",
 			},
 		}
