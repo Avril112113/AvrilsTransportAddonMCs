@@ -21,4 +21,13 @@ return
 			},
 		}
 	},
+	{
+		vehicle="ATAddon Interface Mineral",
+		microcontrollers = {
+			["Interface Controller"] = {
+				[8] = "interfaces/mineral/IC_0_mineral",
+				[86] = "interfaces/IC_readwriter",
+			},
+		}
+	},
 }
