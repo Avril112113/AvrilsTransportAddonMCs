@@ -71,14 +71,14 @@ function viewTick()
 	end
 	if touchData.pressed and not prevTouchData.pressed then
 		if selectedProducible ~= nil then
-			if touchData.pos.x >= 75 and touchData.pos.y >= 24 then
+			if touchData.pos.x >= 75 and touchData.pos.y >= 56 then
 				viewReset()
 				transferState = -1
 			else
 				transferState = touchData.pos.x // (touchData.size.x/3) - 1
 			end
 		else
-			selectedProducible = storageOrder[(touchData.pos.y + page*32) // 8]
+			selectedProducible = storageOrder[(touchData.pos.y + page*64) // 8]
 			transferState = selectedProducible ~= nil and 0 or 1
 		end
 	end
@@ -91,16 +91,14 @@ function viewTick()
 	_ = selectedProducible ~= prevSelectedProducible and Binnet:send(20)
 
 	if tick % 180 == 0 then
-		page = math.floor((page+1) % ((#storageOrder+1)/4))
+		page = math.floor((page+1) % ((#storageOrder+1)/8))
 	end
 
 	if selectedProducible == nil then
 		transferState = -1
 	end
 
-	output.setBool(1, transferState < 0)  -- Into location storage
-	output.setBool(2, transferState > 0)  -- Out of location storage
-	output.setBool(3, selectedProducible == nil)
+	output.setNumber(4, transferState)
 
 	prevComanyName = companyName
 end
@@ -108,7 +106,7 @@ end
 function viewDraw()
 	screen.setColor(255, 255, 255, 255)
 	if selectedProducible == nil then
-		y = 10 - INTERFACE.scroll - page*32
+		y = 10 - INTERFACE.scroll - page*64
 		screen.drawText(1, y, ("~ %s"):format(INTERFACE.location))
 		y = y + 8
 		for _, producibleName in ipairs(storageOrder) do
@@ -117,11 +115,11 @@ function viewDraw()
 		end
 	else
 		screen.drawText(1, 0, ("Location %s Vehicle"):format(transferState < 0 and "<<" or transferState > 0 and ">>" or "--"))
-		screen.drawText(1, 8, ("$%+.2f/l %s"):format(produciblePrices[selectedProducible] or math.huge, selectedProducible:gsub("_", " ")))
-		screen.drawText(76, 25, "BACK")
+		screen.drawText(1, 8, ("$%+.2f/L %s"):format(produciblePrices[selectedProducible] or math.huge, selectedProducible:gsub("_", " ")))
+		screen.drawText(76, 57, "BACK")
 		equalColor = transferMoney == 0 and 100 or 0
 		screen.setColor(transferMoney < 0 and 100 or equalColor, transferMoney > 0 and 100 or equalColor, equalColor, 255)
 		screen.drawText(1, 16, ("$%+.2f"):format(transferMoney))
-		screen.drawText(1, 24, (" %+.2f/l"):format(transferAmount))
+		screen.drawText(1, 24, (" %+.2fL"):format(transferAmount))
 	end
 end
